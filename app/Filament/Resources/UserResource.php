@@ -2,16 +2,16 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\UserResource\Pages;
 
 class UserResource extends Resource
 {
@@ -31,10 +31,26 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('name')
+                    ->searchable(),
+                TextColumn::make('email'),
+                IconColumn::make('email_verified_at')
+                    ->label('Verified')
+                    ->getStateUsing(function ($record): bool {
+                        return (bool) $record->email_verified_at;
+                    })
+                    ->trueColor('success')
+                    ->falseColor('warning'),
+                TextColumn::make('created_at')
+                    ->since()
+                    ->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                Filter::make('verified')
+                    ->query(function (Builder $query): Builder {
+                        return $query->whereNotNull('email_verified_at');
+                    })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
