@@ -8,8 +8,11 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\UserResource\Pages;
 
@@ -23,7 +26,16 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Section::make()
+                    ->schema([
+                        TextInput::make('name')
+                            ->required()
+                            ->maxLength(10),
+                        TextInput::make('email')
+                            ->disabled(),
+                        DatePicker::make('email_verified_at')
+                            ->maxDate(now()),
+                    ])
             ]);
     }
 
