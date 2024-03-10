@@ -8,11 +8,13 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\UserResource\Pages;
 
@@ -31,6 +33,10 @@ class UserResource extends Resource
                         TextInput::make('name')
                             ->required()
                             ->maxLength(10),
+                        Select::make('roles')
+                            ->relationship('roles', 'name')
+                            ->multiple()
+                            ->preload(),
                         TextInput::make('email')
                             ->disabled(),
                         DatePicker::make('email_verified_at')
@@ -45,6 +51,13 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
+                TextColumn::make('roles.name')
+                    ->badge()
+                    ->label('roles'),
+                TextColumn::make('roles_count')
+                    ->counts('roles')
+                    ->sortable()
+                    ->label('roles count'),
                 TextColumn::make('email'),
                 IconColumn::make('email_verified_at')
                     ->label('Verified')
@@ -59,6 +72,10 @@ class UserResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
+                SelectFilter::make('roles')
+                    ->relationship('roles', 'name')
+                    ->searchable()
+                    ->preload(),
                 Filter::make('verified')
                     ->query(function (Builder $query): Builder {
                         return $query->whereNotNull('email_verified_at');

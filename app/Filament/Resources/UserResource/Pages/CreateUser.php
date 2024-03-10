@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UserResource\Pages;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Illuminate\Database\Eloquent\Model;
 use App\Filament\Resources\UserResource;
@@ -15,7 +16,7 @@ class CreateUser extends CreateRecord
 
     protected static string $resource = UserResource::class;
 
-    protected function getSteps(): array
+    public function getSteps(): array
     {
         return [
             Step::make('Information')
@@ -37,6 +38,10 @@ class CreateUser extends CreateRecord
                 ]),
             Step::make('Validation')
                 ->schema([
+                    Select::make('roles')
+                        ->relationship('roles', 'name')
+                        ->multiple()
+                        ->preload(),
                     Toggle::make('auto_verified')
                         ->label('Validate user email')
                         ->default(false),
